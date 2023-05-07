@@ -1,14 +1,3 @@
-/*
- * mm-naive.c - The fastest, least memory-efficient malloc package.
- *
- * In this naive approach, a block is allocated by simply incrementing
- * the brk pointer.  Blocks are never coalesced or reused.  The size of
- * a block is found at the first aligned word before the block (we need
- * it for realloc).
- *
- * This code is correct and blazingly fast, but very bad usage-wise since
- * it never frees anything.
- */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,8 +7,6 @@
 #include "mm.h"
 #include "memlib.h"
 
-/* If you want debugging output, use the following macro.  When you hand
- * in, remove the #define DEBUG line. */
 #define DEBUG
 #ifdef DEBUG
 # define dbg_printf(...) printf(__VA_ARGS__)
@@ -78,8 +65,7 @@
 /*
  * mm_init - Called when a new trace starts.
  */
-static char *heap_listp = NULL;
-size_t heap_size = 0;
+static char *heap_listp = 0;
 
 //Some tool functions:
 
@@ -88,7 +74,6 @@ static void *coalesce(void *bp);
 static void *find_fit(size_t asize);
 static void place(void *bp, size_t asize);
 
-size_t extend_heap_cnt = 0;
 static void *extend_heap(size_t words){
     char *bp;
     words = (words & 1) ? (words + 1) * WSIZE : words * WSIZE;
@@ -97,7 +82,6 @@ static void *extend_heap(size_t words){
     PUT(HDRP(bp), PACK(words, 0)); //free block header
     PUT(FTRP(bp), PACK(words, 0)); //free block footer
     PUT(HDRP(NEXT_BLKP(bp)), PACK(0, 1)); //new epilogue header
-    heap_size += words;
     return coalesce(bp);
 }
 
@@ -165,7 +149,7 @@ int mm_init(void){
     PUT(heap_listp + (3 * WSIZE), PACK(0, 1));
     heap_listp += (2 * WSIZE); //指向序言块的尾部
     //扩展堆
-    if(extend_heap(CHUNKSIZE) == NULL) return -1;
+    if(extend_heap(CHUNKSIZE / WSIZE) == NULL) return -1;
     return 0;
 }
 size_t malloc_cnt = 0;
@@ -186,7 +170,7 @@ void *malloc(size_t size){
     }
     //没有找到合适的空闲块，扩展堆
     extend_size = MAX(adjust_size, CHUNKSIZE);
-    if((bp = extend_heap(extend_size)) == NULL) return NULL;
+    if((bp = extend_heap(extend_size / WSIZE)) == NULL) return NULL;
     place(bp, adjust_size);
     return bp;
 }
