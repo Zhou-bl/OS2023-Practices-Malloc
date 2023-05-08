@@ -1,0 +1,30 @@
+Measuring performance with a cycle counter.
+Processor clock rate ~= 2304.0 MHz
+
+Testing mm malloc
+Reading tracefile: traces/corners.rep
+Checking mm_malloc for correctness, mm_init
+free (nil)
+malloc 1
+malloc 2
+malloc 3
+malloc 4
+malloc 100000
+malloc 10
+malloc 100
+malloc 200
+free 0x800018710
+malloc 100
+malloc 50
+free 0x800018710
+malloc 100
+malloc 100
+free 0x800018710
+malloc 100
+free 0x800018710
+
+
+correctness check finished, by running tracefile "traces/corners.rep".
+ => correct.
+
+Perf index = 0.000000 (util) + 0.000000 (thru) = 0.000000
